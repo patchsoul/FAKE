@@ -15,9 +15,16 @@ the language uses postfix operators to operate on the stack.
 
     5 4 /   # = 1.25
 
+the hashtag # is a comment.
+
 the top element on the stack is called TOS (top of stack), and the next on stack is called NOS.
 when printing the stack, the letter `e` indicates where the current TOS is (internally, stack index).
 normally it's at the very end of the stack, but you can lower/raise the stack index with parentheses `()`.
+
+numbers are any digit (0-9) or a minus sign followed by any digit, with one period optional to
+indicate the decimal place.  no scientific notation allowed.
+
+    2.432 0.5 * # = 1.216
 
 almost every byte has some significance.  multi-character functions must be enclosed in backticks \`.
 elements on the stack can become arguments to functions, but there are function instructions
@@ -41,18 +48,20 @@ here `y` copies (shallow copies) the TOS, and `p` pops the TOS.
 things that are currently implemented:
 ```
     '' "" `` \ #
-    ?! +-/* pdyY
+    +-/*
+    ?! ~
+    pdyY
     [] () {} e
 ```
 
 Things may change, but these are the current ideas/definitions of things:
 
-used letters
-    abcd jkl n p r xyz
-    F M R T Y
-unused letters
-    efghi m o q stuvw
-    ABCDE GHIJKL NOPQ S UVWX Z
+    used letters
+        abcd jkl n p r xyz
+        F M R T Y
+    unused letters
+        efghi m o q stuvw
+        ABCDE GHIJKL NOPQ S UVWX Z
 
     ""  # write string to output
         # e.g.
