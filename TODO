@@ -1,0 +1,27 @@
+add up/down functionality to terminal
+add HELP bar.
+
+context:
+    if you define some stuff:
+    
+    'A'aa
+    A['B'aa]
+    AB['C'z"123"]
+    A['D'aa]
+    AD['D'z+]
+    AB['E'z[1\\DD\C]\DD]
+
+defining an object:
+    'A'aa
+    'B'bb
+    'C'cc
+    # object size can grow, independent of what the initial size is.
+
+defining a variable creator:
+    'D'cc
+    '+'Dzz@     # same as D['+'zz@]
+    5.5'f'D+    # add variable f to scope D
+    Df          # push variable f to stack
+
+compiling a function:
+    error if over-writing a function.
