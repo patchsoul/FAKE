@@ -41,6 +41,16 @@ only one instruction long.
 
 here `y` copies (shallow copies) the TOS, and `p` pops the TOS.
 
+oh, and there's loops, too.  `l` starts a loop, takes one instruction (on the right),
+`j` jumps back to the start of the loop, and `k` breaKs out of a loop (or Kicks you out):
+
+    10l[?!k"hello `y`!"1-j]
+
+it's supposed to be easy to remember because ljk are next to each other in the alphabet.
+without the `j`, the loop would not be repeated.  if you noticed, in strings (quotes ' or "),
+you can execute arbitrary code using backticks \`; this executes a function and then pops
+the stack to print something in the middle of the string.  useful for debugging and probably
+other text-writing type stuff.
 
 
 ## Language
@@ -52,6 +62,7 @@ things that are currently implemented:
     ?! ~
     pdyY
     [] () {} e
+    ljk
 ```
 
 Things may change, but these are the current ideas/definitions of things:
