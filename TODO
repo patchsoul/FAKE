@@ -1,7 +1,6 @@
 check loop functionality, works without l at start.
 add up/down functionality to terminal
 add HELP bar.
-why does Enter have to be pressed twice to work...
 
 context:
     if you define some stuff:

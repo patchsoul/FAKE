@@ -11,11 +11,12 @@ try out the hello world example.
 
     "hello world!"
 
-the language uses postfix operators to operate on the stack.
+the language uses postfix operators to operate on the stack, where you can push numbers, strings,
+and other things:
 
     5 4 /   # = 1.25
 
-the hashtag # is a comment.
+the hashtag `#` creates a comment to the end of the line.
 
 the top element on the stack is called TOS (top of stack), and the next on stack is called NOS.
 when printing the stack, the letter `e` indicates where the current TOS is (internally, stack index).
@@ -68,10 +69,10 @@ things that are currently implemented:
 Things may change, but these are the current ideas/definitions of things:
 
     used letters
-        abcd jkl n p r xyz
+        abcde jkl n p r xyz
         F M R T Y
     unused letters
-        efghi m o q stuvw
+        fghi m o q stuvw
         ABCDE GHIJKL NOPQ S UVWX Z
 
     ""  # write string to output

@@ -125,19 +125,24 @@ function terminal_onkeydown(evt) {
     var code = document.activeElement;
     if (code.getAttribute("class") !== "code")
         return;
-    if (evt.keyCode === 13) {
-        // if we press enter on a code snippet...
-        evt.preventDefault();
-        if (evt.shiftKey == shiftExecutes) {
-            execute(code);
-        } else {
-            insertText(code, "\r\n"); // for windows
-        }
-        return false;
-    } else if (evt.keyCode === 9) { // tab
-        evt.preventDefault();
-        insertText(code, "  "); // or maybe \t ?  make an option...
-        return false;
+    switch (evt.keyCode) {
+        case 13:
+            // if we press enter on a code snippet...
+            evt.preventDefault();
+            if (evt.shiftKey == shiftExecutes) {
+                execute(code);
+            } else {
+                insertText(code, "\r\n  "); // for windows, space to ensure it stays in
+            }
+            return false;
+        case 9:
+            evt.preventDefault();
+            insertText(code, "  "); // or maybe \t ?  make an option...
+            return false;
+        case 38: // up
+            return false;
+        case 40: // down
+            return false;
     }
 }
 
