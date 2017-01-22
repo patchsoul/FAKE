@@ -1,5 +1,8 @@
 check loop functionality, works without l at start.
 add up/down functionality to terminal
+    -- it's maybe a bit more complicated than necessary.
+    -- when adding something in the middle of the history,
+        pressing down will skip the next logical piece of history, though you can hit up to see it.
 add HELP bar.
 
 context:

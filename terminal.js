@@ -85,7 +85,9 @@ function execute(codeblock) {
     var result = parse(codeblock.innerHTML);
     if (result.error !== undefined)
         return;
- 
+    
+    add_history(codeblock.innerHTML);
+
     // now execute:
     result.fn(statements, stack);
 
@@ -140,8 +142,10 @@ function terminal_onkeydown(evt) {
             insertText(code, "  "); // or maybe \t ?  make an option...
             return false;
         case 38: // up
+            code.innerHTML = check_history_and_change(code.innerHTML, -1);
             return false;
         case 40: // down
+            code.innerHTML = check_history_and_change(code.innerHTML, 1);
             return false;
     }
 }
