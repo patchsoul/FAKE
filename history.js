@@ -1,4 +1,4 @@
-var History = {index: -1, array: []};
+var History = {index: -1, array: [], just_added: false};
 
 function check_history_and_change(text, dir) {
     if (History.array.length === 0) {
@@ -12,6 +12,7 @@ function check_history_and_change(text, dir) {
         History.array[History.index++] = text;
         return "";
     } else if (dir < 0) { // going back
+        History.just_added = false;
         if (History.index === 0)
             return History.array[0]; // nothing previous to this
         // do we already have text in the history?
@@ -41,6 +42,10 @@ function check_history_and_change(text, dir) {
         return History.array[--History.index];
     }
     // else going forward:
+    if (History.just_added) {
+        History.just_added = false;
+        --History.index;
+    }
     if (!text) {
         if (++History.index >= History.array.length) {
             History.index = History.array.length;
@@ -75,8 +80,10 @@ function add_history(text) {
         return;
     if (History.array.length) {
         if (History.index === History.array.length) {
-            if (History.array[History.index-1] != text)
+            if (History.array[History.index-1] != text) {
                 History.array[History.index++] = text;
+                History.just_added = true;
+            }
             return;
         }
         if (History.array[History.index] == text || (History.index > 0 && History.array[History.index-1] == text))
@@ -84,4 +91,5 @@ function add_history(text) {
     }
     allocate(History);
     History.array[History.index++] = text;
+    History.just_added = true;
 }
