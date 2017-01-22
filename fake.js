@@ -131,9 +131,11 @@ add_function(root, '!', 2, function (instructions) {
     });
 });
 
+
 add_function(root, 'l', 1, function (instructions) {
     return function (stmts, stck) {
-        var new_stmts = {interrupt: 0, io_context: stmts.io_context};
+        var new_stmts = {interrupt: 0, io_context: stmts.io_context,
+            interruptible: instructions[0]};
         instructions[0].fn(new_stmts, stck);
     };
 });

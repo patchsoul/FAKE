@@ -113,7 +113,7 @@ function next_instruction(context, text, j) {
                         return error("could not build stack inside {}");
                     stck.array[stck.index] = new_stack;
                     return 0;
-                }
+                };
                 j = obj.final_j;
                 delete obj.final_j;
                 return obj;
@@ -201,6 +201,8 @@ function next_instruction(context, text, j) {
                 // this creates an "instance" of the function, with a specific
                 // argument set.
                 var new_fn = { internal_fn: fn_header.fn, instructions: [] };
+                if (fn_header.subcontext)
+                    context = fn_header.subcontext;
                 for (var i=0; i<fn_header.instructions; ++i) {
                     var j_start = j+1;
                     var new_arg_fn = next_instruction(context, text, ++j)
@@ -227,17 +229,23 @@ function make_function_from_array(fn_array) {
     var obj = {
         fn_array: fn_array,
         fn: function (stmts, stck) {
+            if (stmts.interrupt && stmts.interruptible.fn !== obj.fn)
+                return 0; 
             var j=-1;
             while (++j < obj.fn_array.length) {
                 if (obj.fn_array[j].fn(stmts, stck)) {
                     return error("cannot finish function array");
                 }
                 if (stmts.interrupt) {
-                    if (stmts.interrupt < 0)
-                        j = -1;
-                    else
+                    if (stmts.interruptible.fn !== obj.fn)
                         break;
+                    if (stmts.interrupt < 0) {
+                        j = -1;
+                        stmts.interrupt = 0;
+                        continue;
+                    }
                     stmts.interrupt = 0;
+                    break;
                 }
             }
             return 0;
