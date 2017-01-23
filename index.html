@@ -55,6 +55,7 @@ a {
  background:#fc4;
  padding:0;
  border:0;
+ height:auto;
 }
 div#topDiv pre {
  margin-left:5px;
@@ -66,6 +67,11 @@ div#topDiv pre {
  -moz-user-select: none;      /* Firefox */
  -ms-user-select: none;       /* IE/Edge */
  user-select: none;           /* non-prefixed version, not supported */
+}
+#help {
+display:none;
+background-color:#e98;
+width:100%;
 }
 .unselectable {
  -webkit-touch-callout: none; /* iOS Safari */
@@ -91,8 +97,102 @@ td {
 
 <body id="body">
 <div id="topDiv">
-<pre>[<a href="#" onclick="changeFontsize(fontSize-2);return false;">&lt;&lt;</a> <a href="#" onclick="changeFontsize(fontSize+2);return false;">&gt;&gt;</a> Fontsize] </pre><pre>[<a href="#" onclick="changeShiftExecutes(1-shiftExecutes);return false;" id="aShift">Enter</a> to Execute] </pre><pre>[<a href="https://github.com/patchsoul/FAKE/tree/gh-pages">FAKE</a>]</pre>
-</div>
+<pre>[<a href="#" onclick="changeFontsize(fontSize-2);return false;">&lt;&lt;</a> <a href="#" onclick="changeFontsize(fontSize+2);return false;">&gt;&gt;</a> Fontsize] </pre><pre>[<a href="#" onclick="changeShiftExecutes(1-shiftExecutes);return false;" id="aShift">Enter</a> to Execute] </pre><pre>[<a href="https://github.com/patchsoul/FAKE/tree/gh-pages">FAKE</a>]  [<label><input type="checkbox" onclick="var help=document.getElementById('help'); if (this.checked == true) help.style.display = 'block'; else help.style.display = 'none'; return true;">Show Help]</label></pre></div>
+<pre id="help">
+<details><summary># Numbers and Basic Math</summary>
+    #       # a hash symbol means ignore the remaining input to end-of-line, i.e. make a comment.
+    0.5     # push a number to the stack.  a number begins with 0-9, so start with 0. to do fractions.
+    -5.3    # push a negative number to the stack, i.e. - is unary minus if 0-9 follows.
+    +-*/    # standard mathematical operators, postfix notation, operating on numbers already on the stack.
+
+    # examples
+
+    0.5 2 - # result is -1.5
+    8.5 2 * # result is 17
+
+</details><details><summary># Stack Operators</summary>
+    # TOS is "top of stack", and NOS is "next on stack."
+
+    e   # identity operator, used for keeping track of stack index when printing the stack.
+        #   executes next instruction as is.
+        #   CANNOT be used to do scientific notation.
+    d   # duplicate: deep copy of TOS.
+    y   # copy: shallow copy TOS.  numbers and strings get deep copied.
+    Y   # double copy: shallow copy NOS and TOS, to same relative positions.
+    n   # push number of elements to stack.
+    p   # pop the TOS, i.e., remove it from the stack.
+    ~   # swap the TOS and NOS.
+
+    # examples
+
+    5 4Y    # yields 5 4 5 e4
+    6n      # if nothing else in the stack, yields 6 e1
+    5d*     # yields 25, duplicates 5 and multiplies together.
+    5y*     # same as 5d*
+    1 2 3~  # yields 1 3 e2
+
+</details><details><summary># Statements via Various Parentheses: () [] {}</summary>
+    # All parentheses [] {} () create a statement based on the functions inside;
+    #   A statement acts like a single instruction, but can be composed of multiple instructions.
+    #   The statements () {} and () differ in their behavior, though.
+
+    []  # create a normal statement, which acts as one instruction.
+    {}  # create a new stack; any internal instructions push elements to this stack.
+        #   the new stack appears on the old stack as an array element.
+    ()  # this statement lowers the stack index without popping the original TOS.  (NOS becomes TOS.)
+        #   instructions inside the () will act on the original NOS as if it was the TOS.
+        #   take care to complete a pair of parentheses () before any loop breaks or jumps.
+        #   while the stack index is lowered, 
+        #       any elements which get pushed to the stack get inserted into the stack,
+        #       and the original TOS gets moved up further.
+        #   the original TOS will reappear at the end of the () statement.
+    
+    # examples
+    {1 2 3} # pushes the array {1 2 3} to the stack.
+    [45.5 33.3]  # yields 45.5 e33.3 
+    1 5d(+) # yields 6 e5
+
+</details><details><summary># Strings, Print Strings, and Execution Strings: '' "" ``</summary>
+    ''  # push a string to the stack.
+    ""  # print string to output.
+    ``  # execute the enclosed instruction.
+        # this is useful for multi-character instructions, e.g. `function`.
+        # `` can also be nested inside a '' or "" string, which executes the code and then pops the TOS
+        #   to write to that point in the string.  YAY for arbitrary code execution!
+        #   note that you can't do multiple instructions unless you enclose each in backticks ``.
+
+    # examples
+    
+    "hello world!"      # this is the hello world program.
+    'this is a string'  # pushed to stack.
+    3'what is the TOS?  it is `y`.'
+                        # `y` executes and duplicates what is on the stack (3), which gets popped and written into the string.
+
+</details><details><summary># Logical Operators</summary>
+    ?   # push logical value of TOS (either 1 or 0), based on value of TOS.
+    !   # NOT conditional: branch based on logical value of TOS, and pop it.
+        #   execute first subsequent instruction if TOS was logically zero,
+        #   otherwise execute the second instruction.
+
+    # examples
+
+    0!["TOS was zero/null"100]["TOS was non-null"1000]
+            # end stack result is e100
+    123?    # stack is 123 e1
+    0?      # stack is 0 e0
+
+</details><details><summary># Loop Operators</summary>
+    # loops use the letters jkl, which are right in a row.
+
+    l   # loop statement; will loop over the next instruction if the jump operator is hit.
+    j   # jump back to start of loop, or "continue", though this is required for a loop to repeat.
+    k   # kill or quit loop, or "breaK", or kick out of loop prematurely.
+
+    # examples
+
+    10l[?!k"hello `y`!"1-j] # counts down from 10 to 1, leaves 0 on the stack.
+
+</details></pre> 
 <div id="codeDiv"></div>
 <pre style="float:right;"><a href="https://patchsoul.github.io/FAKE">https://patchsoul.github.io/FAKE</a></pre>
 </body>

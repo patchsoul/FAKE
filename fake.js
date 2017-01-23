@@ -99,6 +99,12 @@ add_function(root, '~', 0, function (stmts, stck) { // swap
     return 0;
 });
 
+add_function(root, 'n', 0, function (stmts, stck) { // number of elements on stack
+    allocate(stck);
+    stck.array[stck.index] = stck.index;
+    return 0;
+});
+
 add_function(root, '/', 0, function (stmts, stck) {
     return two_arguments(stmts, stck, divide);
 });
@@ -147,20 +153,6 @@ add_function(root, 'j', 0, function (stmts, stck) {
 
 add_function(root, 'k', 0, function (stmts, stck) {
     stmts.interrupt = 1; // end/kill function
-    return 0;
-});
-
-add_function(root, '(', 0, function (stmts, stck) {
-    if (stck.index <= 0)
-        return error("can't lower stack index");
-    --stck.index;
-    return 0;
-});
-
-add_function(root, ')', 0, function (stmts, stck) {
-    if (stck.index + 1 >= stck.array.length)
-        return error("can't raise stack index");
-    ++stck.index;
     return 0;
 });
 

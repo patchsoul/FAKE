@@ -25,9 +25,9 @@ normally it's at the very end of the stack, but you can lower/raise the stack in
 numbers are any digit (0-9) or a minus sign followed by any digit, with one period optional to
 indicate the decimal place.  no scientific notation allowed.
 
-    2.432 0.5 * # = 1.216
+    2.432 0.5* # = 1.216
 
-almost every byte has some significance.  multi-character functions must be enclosed in backticks \`.
+almost every character has some significance, and you don't always have to put space in between them.
 elements on the stack can become arguments to functions, but there are function instructions
 or branches which can be passed in on the right of certain functions.
 
@@ -53,6 +53,8 @@ you can execute arbitrary code using backticks \`; this executes a function and 
 the stack to print something in the middle of the string.  useful for debugging and probably
 other text-writing type stuff.
 
+not yet implemented:
+multi-character functions must be enclosed in backticks \`.
 
 ## Language
 
@@ -64,6 +66,7 @@ things that are currently implemented:
     pdyY
     [] () {} e
     ljk
+    n
 ```
 
 Things may change, but these are the current ideas/definitions of things:
