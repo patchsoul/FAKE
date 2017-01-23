@@ -134,7 +134,42 @@ function terminal_onkeydown(evt) {
             if (evt.shiftKey == shiftExecutes) {
                 execute(code);
             } else {
-                insertText(code, "\r\n  "); // for windows, space to ensure it stays in
+                var parens = [];
+                var no_problem = 1;
+                for (var i=0; no_problem && i<code.innerHTML.length; ++i) {
+                    switch(code.innerHTML[i]) {
+                        case '(':
+                            parens.push(0);
+                        break;
+                        case ')':
+                            if (parens.pop() !== 0) {
+                                no_problem = 0;
+                                error("mismatched ) to something else");
+                            }
+                        break;
+                        case '[':
+                            parens.push(1);
+                        break;
+                        case ']':
+                            if (parens.pop() !== 1) {
+                                no_problem = 0;
+                                error("mismatched ] to something else");
+                            }
+                        break;
+                        case '{':
+                            parens.push(2);
+                        break;
+                        case '}':
+                            if (parens.pop() !== 2) {
+                                no_problem = 0;
+                                error("mismatched } to something else");
+                            }
+                        break;
+                    }
+                }
+                console.log("got parens", parens.length);
+                var enter = "\r\n "+(Array(no_problem*(parens.length+1)).join(" "));
+                insertText(code, enter);
             }
             return false;
         case 9:
