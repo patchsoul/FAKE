@@ -100,10 +100,27 @@ function next_instruction(context, text, j) {
             break;
             case '	':
                 return { final_j: j, fn: function (stmts, stck) {} };
+            case '(':
+                var obj = compile_function(context, text, j+1, ')');
+                if (obj.error !== undefined || text[obj.final_j] !== ')') {
+                    error("bad ( statement.  may need closing )");
+                    return { final_j: text.length, error: "run on (" };
+                }
+                obj.delta_index = 1;       
+                return obj;
             case '[':
-                return compile_function(context, text, j+1, ']');
+                var obj = compile_function(context, text, j+1, ']');
+                if (obj.error !== undefined || text[obj.final_j] !== ']') {
+                    error("bad [ statement.  may need closing ]");
+                    return { final_j: text.length, error: "run on [" };
+                }
+                return obj;
             case '{':
                 var obj = compile_function(context, text, j+1, '}');
+                if (obj.error !== undefined || text[obj.final_j] !== '}') {
+                    error("bad { statement.  may need closing }");
+                    return { final_j: text.length, error: "run on {" };
+                }
                 obj.internal_fn = obj.fn;
                 obj.fn = function (stmts, stck) {
                     if (allocate(stck))
@@ -228,10 +245,12 @@ function next_instruction(context, text, j) {
 function make_function_from_array(fn_array) {
     var obj = {
         fn_array: fn_array,
+        delta_index: 0,
         fn: function (stmts, stck) {
             if (stmts.interrupt && stmts.interruptible.fn !== obj.fn)
                 return 0; 
             var j=-1;
+            stck.index -= obj.delta_index;
             while (++j < obj.fn_array.length) {
                 if (obj.fn_array[j].fn(stmts, stck)) {
                     return error("cannot finish function array");
@@ -248,6 +267,7 @@ function make_function_from_array(fn_array) {
                     break;
                 }
             }
+            stck.index += obj.delta_index;
             return 0;
         }
     }
