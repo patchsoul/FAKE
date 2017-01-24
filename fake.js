@@ -92,7 +92,7 @@ add_function(root, 'Y', 0, function (stmts, stck) { // double copy (shallow)
 
 add_function(root, '~', 0, function (stmts, stck) { // swap
     if (stck.index < 1)
-        return error("need two elements on stack to swap");
+        return error("need two elements on stack to swap: ~");
     var tmp = stck.array[stck.index];
     stck.array[stck.index] = stck.array[stck.index-1];
     stck.array[stck.index-1] = tmp;
@@ -130,11 +130,56 @@ add_function(root, '_', 0, function (stmts, stck) {
 });
 
 add_function(root, '?', 0, logical_branch( function (stmts, stck, result) {
-    if (allocate(stck))
-        return 1;
+    allocate(stck);
     stck.array[stck.index] = result;
     return 0; 
 }));
+
+add_function(root, '&', 0, function (stmts, stck) {
+    if (stck.index < 1)
+        return error("need two elements on stack to do logical AND: &");
+    var value = logical_value(stck.array[stck.index-1]);
+    if (value < 0)
+        return error("can't get logical value of NOS");
+    if (value === 0) {
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = 0;
+        return 0; 
+    }
+    value = logical_value(stck.array[stck.index]);
+    if (value < 0)
+        return error("can't get logical value of TOS");
+    pop(stck);
+    pop(stck);
+    allocate(stck);
+    stck.array[stck.index] = value;
+    return 0; 
+});
+
+add_function(root, '|', 0, function (stmts, stck) {
+    if (stck.index < 1)
+        return error("need two elements on stack to do logical OR: |");
+    var value = logical_value(stck.array[stck.index-1]);
+    if (value < 0)
+        return error("can't get logical value of NOS");
+    if (value === 1) {
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = 1;
+        return 0; 
+    }
+    value = logical_value(stck.array[stck.index]);
+    if (value < 0)
+        return error("can't get logical value of TOS");
+    pop(stck);
+    pop(stck);
+    allocate(stck);
+    stck.array[stck.index] = value;
+    return 0; 
+});
 
 add_function(root, '!', 2, function (instructions) {
     return logical_branch(function (stmts, stck, result) {

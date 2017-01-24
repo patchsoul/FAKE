@@ -308,11 +308,17 @@ function compile_function(context, text, j, until) {
     return obj;
 }
 
+function decodeHTML(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+}
+
 function parse(text) {
     reset_statements();
-    var fn = compile_function(root, text, 0, null);
+    var fn = compile_function(root, decodeHTML(text), 0, null);
     if (fn.error !== undefined) {
-        error("couldn't parse text");
+        error("couldn't parse text "+ text);
         return fn;
     }
     return fn;

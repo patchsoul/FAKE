@@ -378,41 +378,47 @@ var add = [
     }
 ];
 
+function logical_value(e) {
+    switch (typeof e) {
+        case 'number':
+            if (e === 0)
+                return 0;
+            else
+                return 1;
+        break;
+        case 'string':
+            if (e === '')
+                return 0;
+            else
+                return 1;
+        break;
+        case 'object':
+            if (e.index !== undefined) { // stack
+                if (e.array.length === 0)
+                    return 0;
+                else
+                    return 1;
+            } else {
+                // matrix
+                if (e.rows*e.columns === 0)
+                    return 0;
+                else
+                    return 1;
+            }
+        break;
+        default:
+            error("somehow "+e+" is not a valid float, string, stack, or matrix in single argument");
+            return -1;
+    }
+}
+
 function logical_branch(fn) { // creates a function that looks at logical value of TOS.  does not pop it.
     return function (stmts, stck) {
         if (stck.index < 0)
             return error("not enough on stack for logical branch");
-        var result;
-        switch (typeof stck.array[stck.index]) {
-            case 'number':
-                if (stck.array[stck.index] === 0)
-                    result = 0;
-                else
-                    result = 1;
-            break;
-            case 'string':
-                if (stck.array[stck.index] === '')
-                    result = 0;
-                else
-                    result = 1;
-            break;
-            case 'object':
-                if (stck.array[stck.index].index !== undefined) { // stack
-                    if (stck.array[stck.index].array.length === 0)
-                        result = 0;
-                    else
-                        result = 1;
-                } else {
-                    // matrix
-                    if (stck.array[stck.index].rows*stck.array[stck.index].columns === 0)
-                        result = 0;
-                    else
-                        result = 1;
-                }
-            break;
-            default:
-                return error("somehow "+stck.array[stck.index]+" is not a valid float, string, stack, or matrix in single argument");
-        }
+        var result = logical_value(stck.array[stck.index]);
+        if (result < 0)
+            return error("cannot get logical value of TOS");
         return fn(stmts, stck, result);
     };
 }
