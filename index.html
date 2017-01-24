@@ -110,7 +110,7 @@ td {
     # Press enter to execute, and shift-enter to create a newline in the current code area.
     # You can swap this behavior by clicking on the [Enter to execute] button above.
 
-</details><details><summary># Numbers and Basic Math</summary>
+</details><details><summary># Numbers and Basic Math: +- */ ^_</summary>
     #       # a hash symbol means ignore the remaining input to end-of-line, i.e. make a comment.
     0.5     # push a number to the stack.  a number begins with 0-9, so start with 0. to do fractions.
     -5.3    # push a negative number to the stack, i.e. - is unary minus if 0-9 follows.
@@ -127,7 +127,7 @@ td {
     5 3 ^   # result is 125
     42_     # result is 3.737...
 
-</details><details><summary># Stack Operators</summary>
+</details><details><summary># Stack Operators: e dyYp ~ n</summary>
     # TOS is "top of stack", and NOS is "next on stack."
 
     e   # identity operator, used for keeping track of stack index when printing the stack.
@@ -136,9 +136,9 @@ td {
     d   # duplicate: deep copy of TOS.
     y   # copy: shallow copy TOS.  numbers and strings get deep copied.
     Y   # double copy: shallow copy NOS and TOS, to same relative positions.
-    n   # push number of elements to stack.
     p   # pop the TOS, i.e., remove it from the stack.
     ~   # swap the TOS and NOS.
+    n   # push number of elements to stack.
 
     # examples
 
@@ -185,11 +185,13 @@ td {
     3'what is the TOS?  it is `y`.'
                         # `y` executes and duplicates what is on the stack (3), which gets popped and written into the string.
 
-</details><details><summary># Logical Operators</summary>
+</details><details><summary># Logical Operators: ? ! & |</summary>
     ?   # push logical value of TOS (either 1 or 0), based on value of TOS.
     !   # NOT conditional: branch based on logical value of TOS, and pop it.
         #   execute first subsequent instruction if TOS was logically zero,
         #   otherwise execute the second instruction.
+    &   # push logical value (0 or 1) of NOS logical-AND TOS.
+    |   # push logical value (0 or 1) of NOS logical-OR TOS.
 
     # examples
 
@@ -197,9 +199,13 @@ td {
             # end stack result is e100
     123?    # stack is 123 e1
     0?      # stack is 0 e0
+    3 4&    # stack is e1
+    0 3&    # result is e0
+    3 0|    # result is e1
+    0 0|    # result is e0
 
-</details><details><summary># Loop Operators</summary>
-    # loops use the letters jkl, which are right in a row.
+</details><details><summary># Loop Operators: j k l</summary>
+    # loops use the letters jkl, which are right in a row, and thus easy to remember!
 
     l   # loop statement; will loop over the next instruction if the jump operator is hit.
     j   # jump back to start of loop, or "continue", though this is required for a loop to repeat.
