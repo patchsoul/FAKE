@@ -121,6 +121,14 @@ add_function(root, '+', 0, function (stmts, stck) {
     return two_arguments(stmts, stck, add);
 });
 
+add_function(root, '^', 0, function (stmts, stck) {
+    return two_arguments(stmts, stck, power);
+});
+
+add_function(root, '_', 0, function (stmts, stck) {
+    return one_argument(stmts, stck, log_e);
+});
+
 add_function(root, '?', 0, logical_branch( function (stmts, stck, result) {
     if (allocate(stck))
         return 1;

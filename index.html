@@ -115,11 +115,17 @@ td {
     0.5     # push a number to the stack.  a number begins with 0-9, so start with 0. to do fractions.
     -5.3    # push a negative number to the stack, i.e. - is unary minus if 0-9 follows.
     +-*/    # standard mathematical operators, postfix notation, operating on numbers already on the stack.
+    ^       # power, takes NOS as base and TOS as exponent.
+    _       # natural log, determines ln of TOS.
+            #   to take an arbitrary log, base B, of some number N:
+            #       N_B_/   # infix: log_B(N) = log(N)/log(B)
 
     # examples
 
     0.5 2 - # result is -1.5
     8.5 2 * # result is 17
+    5 3 ^   # result is 125
+    42_     # result is 3.737...
 
 </details><details><summary># Stack Operators</summary>
     # TOS is "top of stack", and NOS is "next on stack."

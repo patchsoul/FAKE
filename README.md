@@ -141,7 +141,7 @@ Things may change, but these are the current ideas/definitions of things:
     -   # minus, unary if preceding a valid number, binary otherwise
 
     ^   # power
-    _   # log, with base specified
+    _   # log, base e
     ~   # swap
 
     \   # go back in scope/context

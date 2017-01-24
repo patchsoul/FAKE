@@ -1,4 +1,4 @@
-divide = [
+var divide = [
     // float float
     function (stmts, stck) { 
         stck.array[stck.index-1] /= stck.array[stck.index];
@@ -71,7 +71,7 @@ divide = [
     }
 ];
 
-multiply = [
+var multiply = [
     // float float
     function (stmts, stck) { 
         stck.array[stck.index-1] *= stck.array[stck.index];
@@ -176,7 +176,7 @@ multiply = [
     }
 ];
 
-subtract = [
+var subtract = [
     // float float
     function (stmts, stck) { 
         stck.array[stck.index-1] -= stck.array[stck.index];
@@ -275,7 +275,7 @@ subtract = [
     }
 ];
 
-add = [
+var add = [
     // float float
     function (stmts, stck) { 
         stck.array[stck.index-1] += stck.array[stck.index];
@@ -416,3 +416,99 @@ function logical_branch(fn) { // creates a function that looks at logical value 
         return fn(stmts, stck, result);
     };
 }
+
+var power = [
+    // float float
+    function (stmts, stck) { 
+        stck.array[stck.index-1] = Math.pow(stck.array[stck.index-1], stck.array[stck.index]);
+        pop(stck);
+        return 0;
+    },
+    // string float
+    function (stmts, stck) { 
+        return error("can't power string at NOS by float at TOS...");
+    },
+    // stack float
+    function (stmts, stck) { 
+        return error("can't power stack at NOS by float at TOS, it's isolated...");
+    },
+    // matrix float
+    function (stmts, stck) {
+        // TODO.  for square matrix, can diagonalize:
+        // A = S^* D S, where S^* S = 1
+        // A^p = (S^* D S)^p = S^* D^p S
+        // you can take element-wise powers for D^p.
+        return error("can't power matrix at NOS by float at TOS, not yet...");
+    },
+    // float string
+    function (stmts, stck) { 
+        return error("can't power float at NOS by string at TOS");
+    },
+    // string string
+    function (stmts, stck) { 
+        return error("can't power two strings");
+    },
+    // stack string
+    function (stmts, stck) { 
+        return error("can't power stack at NOS by string at TOS, it's isolated...");
+    },
+    // matrix string
+    function (stmts, stck) {
+        return error("can't power matrix at NOS by string at TOS.  what would that mean?");
+    },
+    // float stack
+    function (stmts, stck) { 
+        return error("can't power float at NOS by stack at TOS.  what would that mean?");
+    },
+    // string stack
+    function (stmts, stck) { 
+        return error("can't power float at NOS by stack at TOS.  what would that mean?");
+    },
+    // stack stack
+    function (stmts, stck) { 
+        return error("can't power two stacks.  what would that mean?");
+    },
+    // matrix stack
+    function (stmts, stck) {
+        return error("can't power matrix at NOS by stack at TOS.  what would that mean?");
+    },
+    // float matrix
+    function (stmts, stck) { 
+        return error("can't power float at NOS by matrix at TOS.  not always converging.");
+    },
+    // string matrix
+    function (stmts, stck) { 
+        return error("can't power string at NOS by matrix at TOS.");
+    },
+    // stack matrix
+    function (stmts, stck) { 
+        return error("can't power stack at NOS by matrix at TOS.  stack is isolated...");
+    },
+    // matrix matrix
+    function (stmts, stck) {
+        // though go for it:  
+        // http://math.stackexchange.com/questions/164422/matrix-raised-to-a-matrix
+        return error("can't power two matrices...");
+    }
+];
+
+var log_e = [
+    // float
+    function (stmts, stck) { 
+        stck.array[stck.index] = Math.log(stck.array[stck.index]);
+        return 0;
+    },
+    // string
+    function (stmts, stck) { 
+        return error("can't log string at TOS.  what would that mean?");
+    },
+    // stack
+    function (stmts, stck) { 
+        return error("can't log stack at TOS, it's isolated...");
+    },
+    // matrix
+    function (stmts, stck) {
+        // technically can take log of a matrix...  but it might not converge...
+        return error("can't log matrix at TOS, may not converge...");
+    }
+];
