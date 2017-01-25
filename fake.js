@@ -1,4 +1,4 @@
-var root = {}; // root context/object/scope.
+var root = {'dictionary\\': 1}; // root context/object/scope.
 root['\\'] = root; // pointer to itself
 var stack = {index: -1, array: []};
 var statements = {};
@@ -21,6 +21,11 @@ function error(msg) {
 }
 
 function add_function(context, character, instructions, fn) {
+    while (context["dictionary\\"] === undefined) {
+        context = context['\\']
+        if (context === undefined)
+            return error("something horrible happened");
+    }
     if (context[character] !== undefined) {
         console.error("context: ", context);
         return error("can't redefine function `"+character+"` in this context");
@@ -212,7 +217,7 @@ add_function(root, 'k', 0, function (stmts, stck) {
 
 (function () {
     var obj = add_function(root, 'e', 1, null);
-    obj.subcontext = {'\\': root};
+    obj.subcontext = {'\\': root, 'dictionary\\': 1};
     obj.fn = function (instructions) {
         return function (stmts, stck) {
             if (instructions[0].fn(stmts, stck))
@@ -221,5 +226,3 @@ add_function(root, 'k', 0, function (stmts, stck) {
         };
     };
 })();
-
-

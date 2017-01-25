@@ -1,4 +1,5 @@
 run commands on first pass, compile statements then run them...
+well, no, since we want "reproducible" stack development.  if you can't parse it, no partial stack action
 
 context:
     if you define some stuff:

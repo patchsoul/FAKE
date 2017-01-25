@@ -62,6 +62,9 @@ a {
  border:0;
  height:auto;
 }
+#AGPL {
+float:right;
+}
 div#topDiv pre {
  margin-left:5px;
  padding:2px;
@@ -102,7 +105,11 @@ td {
 
 <body id="body">
 <div id="topDiv">
-<pre>[<a href="#" onclick="changeFontsize(fontSize-2);return false;">&lt;&lt;</a> <a href="#" onclick="changeFontsize(fontSize+2);return false;">&gt;&gt;</a> Fontsize] </pre><pre>[<a href="#" onclick="changeShiftExecutes(1-shiftExecutes);return false;" id="aShift">Enter</a> to Execute] </pre><pre>[<a href="https://github.com/patchsoul/FAKE/tree/gh-pages">FAKE</a>] </pre><pre>[<label><input type="checkbox" onclick="var help=document.getElementById('help'); if (this.checked == true) help.style.display = 'block'; else help.style.display = 'none'; return true;">Show Help]</label></pre></div>
+<pre>[<a href="#" onclick="changeFontsize(fontSize-2);return false;">&lt;&lt;</a> <a href="#" onclick="changeFontsize(fontSize+2);return false;">&gt;&gt;</a> Fontsize]</pre>
+<pre>[<a href="#" onclick="changeShiftExecutes(1-shiftExecutes);return false;" id="aShift">Enter</a> to Execute] </pre><pre>[<a href="https://github.com/patchsoul/FAKE/tree/gh-pages">FAKE</a>]</pre>
+<pre>[<label><input type="checkbox" onclick="var help=document.getElementById('help'); if (this.checked == true) help.style.display = 'block'; else help.style.display = 'none'; return true;">Show Help]</label></pre>
+<pre id="AGPL">[<a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target=_blank>AGPLv3</a>]</pre>
+</div>
 <pre id="help">
 <details><summary># Terminal Commands</summary>
     # This terminal has super awesome features, with multi-line code areas possible.
@@ -173,7 +180,7 @@ td {
     ''  # push a string to the stack.
     ""  # print string to output.
     ``  # execute the enclosed instruction.
-        # this is useful for multi-character instructions, e.g. `function`.
+        # this is useful for multi-character instructions, e.g. `function`.  (see "Function definitions".)
         # `` can also be nested inside a '' or "" string, which executes the code and then pops the TOS
         #   to write to that point in the string.  YAY for arbitrary code execution!
         #   note that you can't do multiple instructions unless you enclose each in backticks ``.
@@ -219,14 +226,41 @@ td {
     # Functions are defined with up to three subsequent instructions.
 
     abc # pop the TOS, use a string to define a function name.  abc are placeholders for instructions.
-        # the next instruction is interpreted as the function definition, which can use the placeholder instructions.
+        #   the next instruction is interpreted as the function definition, which can use the placeholder instructions.
+    z   # define a zero-instruction function, popping the TOS for a function name.
     
     # examples
     
     'w'abl[a!kbj]   # create a while loop with two instructions (`ab`);
                     #   the first is executed to check whether to continue the loop, and if so, the second is executed
-    1 2 3 4 5wn["hi `y`"p]  # the first instruction is `n` (number of elements on stack), the second prints a string and pops the TOS
+    1 2 3 4 5wn["hi `y`"p]
+        # the first instruction is `n` (number of elements on stack), the second prints a string and pops the TOS
 
+    'H'z0.5     # create a constant variable function (pushes 0.5 to stack)
+    3H*         # yields e1.5
+    'q'z[0.5^]  # create a square root function
+    9q          # yields e3
+    'inv'z[-1^] # create inverse function
+    9`inv`      # yields e0.1111...
+
+    # See also "Dictionary definitions" for some advanced function definition uses.
+
+</details><details><summary># Dictionary definitions: aa bb cc</summary>
+    # Dictionaries are simply non-zero instruction functions.
+    # They have their own context for functions.
+
+    # examples
+
+    'A'aa                       # create a dictionary A, which is an identity operation.
+    A['Z'z["hello arizona!"]]   # create a subdictionary Z, defined only inside the A context.
+    AZ                          # call Z from within an A context, prints "hello arizona!"
+    'B'Aaa                      # create subdictionary B
+    'C'ABz["123"]               # create sub-subdictionary C
+    ABC                         # prints 123
+    AB['E'z"four score and seven years ago"]
+    ABE                         # prints iconic line.
+
+    # It can get way more complicated than this, but these are the fundamentals.
 
 </details></pre> 
 <div id="codeDiv"></div>

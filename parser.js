@@ -85,7 +85,7 @@ function make_dictionary_function(context, length, index) {
                 return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
             var obj = add_function(context, stck.array[stck.index], length, null);
             pop(stck);
-            obj.subcontext = {'\\': context};
+            obj.subcontext = {'\\': context, 'dictionary\\': 1};
             obj.fn = function (instructions) {
                 return function (stmts1, stck1) {
                     if (instructions[index].fn(stmts1, stck1))
@@ -96,6 +96,28 @@ function make_dictionary_function(context, length, index) {
             return 0;
         } 
     };
+}
+
+function make_zero_instruction_function(context, text, j) {
+    // text[j] should be 'z'
+    var next_inst = next_instruction(context, text, j+1);
+    if (next_inst.error !== undefined)
+        return { final_j: text.length, fn: function (stmts, stck) {}, error: "unfinished z-function definition" };
+    var obj = {final_j: next_inst.final_j, internal_fn: next_inst.fn};
+    obj.fn = function (stmts, stck) {
+        if (stck.index < 0)
+            return error("nothing on stack, can't define a z-function");
+        if (typeof stck.array[stck.index] !== 'string')
+            return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
+        // overwrite the context
+        var obj1 = add_function(context, stck.array[stck.index], 0, function (stmts1, stck1) {
+            return obj.internal_fn(stmts1, stck1);
+        });
+        pop(stck);
+        // nullify the function, it has defined something
+        return 0;
+    };
+    return obj;
 }
 
 function make_function_with_instructions(context, text, j, instructions) {
@@ -120,19 +142,19 @@ function make_function_with_instructions(context, text, j, instructions) {
     obj.internal_fn = next_inst.fn;
     obj.fn = function (stmts, stck) {
         if (stck.index < 0)
-            return error("nothing on stack, can't define a dictionary");
+            return error("nothing on stack, can't define a function");
         if (typeof stck.array[stck.index] !== 'string')
             return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
-        // overwrite the context
         var obj1 = add_function(context, stck.array[stck.index], instructions.length, null);
         pop(stck);
+        obj1.subcontext = { '\\': context, 'dictionary\\': 1 };
         obj1.fn = function (instructions1) {
             // here we bind the instructions to the global variable obj.subinstructions:
             for (var i=0; i<instructions1.length; ++i)
                 obj.subinstructions[i] = instructions1[i];
             return function (stmts1, stck1) {
                 return obj.internal_fn(stmts1, stck1);
-            }
+            };
         };
         // nullify the function, it has defined something
         return 0;
@@ -267,6 +289,8 @@ function next_instruction(context, text, j) {
                 obj.final_j = j;
                 return obj;
             break;
+            case 'z':
+                return make_zero_instruction_function(original_context, text, j);
             case 'a':
             case 'b':
             case 'c':
@@ -314,7 +338,6 @@ function next_instruction(context, text, j) {
                     if (context['\\'] === context) {
                         error("undefined character `"+fn_name_obj.name+"` at position "+j);
                         return { final_j: text.length, fn: function (stmts, stck) {}, error: "undefined character `"+fn_name_obj.name+"`" };
-                    
                     }
                     context = context['\\'];
                     fn_header = context[fn_name_obj.name];
@@ -326,10 +349,10 @@ function next_instruction(context, text, j) {
                 // otherwise make a copy of the function 
                 // this creates an "instance" of the function, with a specific
                 // argument set.
-                var new_fn = { internal_fn: fn_header.fn, instructions: [] };
                 if (fn_header.subcontext) {
-                    context = fn_header.subcontext;
+                    original_context = fn_header.subcontext;
                 }
+                var new_fn = { internal_fn: fn_header.fn, instructions: [] };
                 for (var i=0; i<fn_header.instructions; ++i) {
                     var j_start = j+1;
                     var new_arg_fn = next_instruction(original_context, text, ++j)
