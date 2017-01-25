@@ -518,3 +518,237 @@ var log_e = [
         return error("can't log matrix at TOS, may not converge...");
     }
 ];
+
+var less_than = [
+    // float float
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1] < stck.array[stck.index] ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result;
+        return 0;
+    },
+    // string float
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by float at TOS...");
+    },
+    // stack float
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by float at TOS, it's isolated...");
+    },
+    // matrix float
+    function (stmts, stck) {
+        // get matrix determinant, compare to float
+        return error("can't compare matrix at NOS by float at TOS, not yet...");
+    },
+    // float string
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by string at TOS");
+    },
+    // string string
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1].localeCompare(stck.array[stck.index]) < 0 ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result; 
+        return 0;
+    },
+    // stack string
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by string at TOS, it's isolated...");
+    },
+    // matrix string
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by string at TOS.  what would that mean?");
+    },
+    // float stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // string stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // stack stack
+    function (stmts, stck) { 
+        return error("can't compare two stacks.  what would that mean?");
+    },
+    // matrix stack
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by stack at TOS.  what would that mean?");
+    },
+    // float matrix
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by matrix at TOS.  not yet...");
+    },
+    // string matrix
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by matrix at TOS.");
+    },
+    // stack matrix
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by matrix at TOS.  stack is isolated...");
+    },
+    // matrix matrix
+    function (stmts, stck) {
+        return error("can't compare two matrices..., not yet...");
+    }
+];
+
+var greater_than = [
+    // float float
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1] > stck.array[stck.index] ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result;
+        return 0;
+    },
+    // string float
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by float at TOS...");
+    },
+    // stack float
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by float at TOS, it's isolated...");
+    },
+    // matrix float
+    function (stmts, stck) {
+        // get matrix determinant, compare to float
+        return error("can't compare matrix at NOS by float at TOS, not yet...");
+    },
+    // float string
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by string at TOS");
+    },
+    // string string
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1].localeCompare(stck.array[stck.index]) > 0 ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result; 
+        return 0;
+    },
+    // stack string
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by string at TOS, it's isolated...");
+    },
+    // matrix string
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by string at TOS.  what would that mean?");
+    },
+    // float stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // string stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // stack stack
+    function (stmts, stck) { 
+        return error("can't compare two stacks.  what would that mean?");
+    },
+    // matrix stack
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by stack at TOS.  what would that mean?");
+    },
+    // float matrix
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by matrix at TOS.  not yet...");
+    },
+    // string matrix
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by matrix at TOS.");
+    },
+    // stack matrix
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by matrix at TOS.  stack is isolated...");
+    },
+    // matrix matrix
+    function (stmts, stck) {
+        return error("can't compare two matrices..., not yet...");
+    }
+];
+
+var equal = [
+    // float float
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1] === stck.array[stck.index] ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result;
+        return 0;
+    },
+    // string float
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by float at TOS...");
+    },
+    // stack float
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by float at TOS, it's isolated...");
+    },
+    // matrix float
+    function (stmts, stck) {
+        // get matrix determinant, compare to float
+        return error("can't compare matrix at NOS by float at TOS, not yet...");
+    },
+    // float string
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by string at TOS");
+    },
+    // string string
+    function (stmts, stck) { 
+        var result = stck.array[stck.index-1].localeCompare(stck.array[stck.index]) === 0 ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result; 
+        return 0;
+    },
+    // stack string
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by string at TOS, it's isolated...");
+    },
+    // matrix string
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by string at TOS.  what would that mean?");
+    },
+    // float stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // string stack
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by stack at TOS.  what would that mean?");
+    },
+    // stack stack
+    function (stmts, stck) { 
+        return error("can't compare two stacks.  what would that mean?");
+    },
+    // matrix stack
+    function (stmts, stck) {
+        return error("can't compare matrix at NOS by stack at TOS.  what would that mean?");
+    },
+    // float matrix
+    function (stmts, stck) { 
+        return error("can't compare float at NOS by matrix at TOS.  not yet...");
+    },
+    // string matrix
+    function (stmts, stck) { 
+        return error("can't compare string at NOS by matrix at TOS.");
+    },
+    // stack matrix
+    function (stmts, stck) { 
+        return error("can't compare stack at NOS by matrix at TOS.  stack is isolated...");
+    },
+    // matrix matrix
+    function (stmts, stck) {
+        return error("can't compare two matrices..., not yet...");
+    }
+];

@@ -196,6 +196,17 @@ add_function(root, '!', 2, function (instructions) {
     });
 });
 
+add_function(root, '<', 0, function (stmts, stck) {
+    return two_arguments(stmts, stck, less_than);
+});
+
+add_function(root, '>', 0, function (stmts, stck) {
+    return two_arguments(stmts, stck, greater_than);
+});
+
+add_function(root, '=', 0, function (stmts, stck) {
+    return two_arguments(stmts, stck, equal);
+});
 
 add_function(root, 'l', 1, function (instructions) {
     return function (stmts, stck) {

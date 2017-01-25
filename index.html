@@ -192,24 +192,36 @@ td {
     3'what is the TOS?  it is `y`.'
                         # `y` executes and duplicates what is on the stack (3), which gets popped and written into the string.
 
-</details><details><summary># Logical Operators: ? ! & |</summary>
+</details><details><summary># Comparisons, Logic, and Conditional Branching: <=> ?&| !</summary>
+    <   # push NOS < TOS (result is 0 or 1), after popping both.
+    >   # push NOS > TOS (result is 0 or 1), after popping both.
+    =   # check if NOS is equal to TOS (result is 0 or 1), after popping both.
+
     ?   # push logical value of TOS (either 1 or 0), based on value of TOS.
+    &   # push logical value (0 or 1) of NOS logical-AND TOS, after popping both.
+    |   # push logical value (0 or 1) of NOS logical-OR TOS, after popping both.
+
     !   # NOT conditional: branch based on logical value of TOS, and pop it.
         #   execute first subsequent instruction if TOS was logically zero,
         #   otherwise execute the second instruction.
-    &   # push logical value (0 or 1) of NOS logical-AND TOS.
-    |   # push logical value (0 or 1) of NOS logical-OR TOS.
 
     # examples
 
-    0!["TOS was zero/null"100]["TOS was non-null"1000]
-            # end stack result is e100
+    5 3 <   # result is e0
+    4 4 =   # result is e1
+    5 5 >   # result is e0
+    6 0 >   # result is e1
+
     123?    # stack is 123 e1
     0?      # stack is 0 e0
     3 4&    # stack is e1
     0 3&    # result is e0
     3 0|    # result is e1
     0 0|    # result is e0
+
+    0!["TOS was zero/null"100]["TOS was non-null"1000]
+            # end stack result is e100
+    3 4< !["got not branch (>=)"]["got yes branch (<)"]
 
 </details><details><summary># Loop Operators: j k l</summary>
     # loops use the letters jkl, which are right in a row, and thus easy to remember!
