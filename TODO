@@ -1,3 +1,5 @@
+run commands on first pass, compile statements then run them...
+
 context:
     if you define some stuff:
     

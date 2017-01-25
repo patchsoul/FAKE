@@ -6,7 +6,6 @@ var statements = {};
 function reset_statements() {
     statements.interrupt = 0;
     statements.io_context = "none";
-    statements.context = root;
 }
 
 function print(msg) {
@@ -22,8 +21,10 @@ function error(msg) {
 }
 
 function add_function(context, character, instructions, fn) {
-    if (context[character] !== undefined)
-        return error("can't redefine function `"+character+"` in context "+context);
+    if (context[character] !== undefined) {
+        console.error("context: ", context);
+        return error("can't redefine function `"+character+"` in this context");
+    }
     var obj = {
         name: character,
         fn: fn,
@@ -214,11 +215,11 @@ add_function(root, 'k', 0, function (stmts, stck) {
     obj.subcontext = {'\\': root};
     obj.fn = function (instructions) {
         return function (stmts, stck) {
-            stmts.context = obj.subcontext;
             if (instructions[0].fn(stmts, stck))
                 return error("could not execute internal statement");
-            stmts.context = root;
             return 0;
         };
     };
-})()
+})();
+
+

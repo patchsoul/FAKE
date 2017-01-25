@@ -76,9 +76,104 @@ function make_quote_function(quote, split, internal_fns) {
     return obj;
 }
 
+function make_dictionary_function(context, length, index) {
+    return {
+        fn: function (stmts, stck) {
+            if (stck.index < 0)
+                return error("nothing on stack, can't define a dictionary");
+            if (typeof stck.array[stck.index] !== 'string')
+                return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
+            var obj = add_function(context, stck.array[stck.index], length, null);
+            pop(stck);
+            obj.subcontext = {'\\': context};
+            obj.fn = function (instructions) {
+                return function (stmts1, stck1) {
+                    if (instructions[index].fn(stmts1, stck1))
+                        return error("could not execute internal statement");
+                    return 0;
+                };
+            };
+            return 0;
+        } 
+    };
+}
+
+function make_function_with_instructions(context, text, j, instructions) {
+    // need to insert into the context the instruction characters in "instructions".
+    // though they're more like placeholders...
+    var obj = { subcontext: { '\\': context }, subinstructions: [], instructions: 0 };
+    instructions.forEach(function (element, index) {
+        obj.subcontext[element] = { 
+            fn: function (stmts, stck) {
+                return obj.subinstructions[index].fn(stmts, stck); 
+            },
+            instructions: 0 
+        };
+    });
+    // this is a bit of an hack -- while it's ok for javascript, which is single-threaded,
+    // this definition would be bad for multiple threads.  in each invocation of the function,
+    // the instructions are bound to a global variable (obj.subinstructions); see below.
+    var next_inst = next_instruction(obj.subcontext, text, j);
+    if (next_inst.error !== undefined)
+        return { final_j: text.length, fn: function (stmts, stck) {}, error: "unfinished function definition" };
+    obj.final_j = next_inst.final_j;
+    obj.internal_fn = next_inst.fn;
+    obj.fn = function (stmts, stck) {
+        if (stck.index < 0)
+            return error("nothing on stack, can't define a dictionary");
+        if (typeof stck.array[stck.index] !== 'string')
+            return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
+        // overwrite the context
+        var obj1 = add_function(context, stck.array[stck.index], instructions.length, null);
+        pop(stck);
+        obj1.fn = function (instructions1) {
+            // here we bind the instructions to the global variable obj.subinstructions:
+            for (var i=0; i<instructions1.length; ++i)
+                obj.subinstructions[i] = instructions1[i];
+            return function (stmts1, stck1) {
+                return obj.internal_fn(stmts1, stck1);
+            }
+        };
+        // nullify the function, it has defined something
+        return 0;
+    };
+    return obj;
+}
+
+function make_function(context, text, j) {
+    var instruction_dict = { 'a': 1, 'b': 1, 'c': 1 };
+    var instructions = [ text[j] ];
+    instruction_dict[text[j]] = 0;
+    var index;
+    while (++j < text.length) {
+        if (instruction_dict[text[j]] === 1) {
+            instruction_dict[text[j]] = 0;
+            instructions.push(text[j]);
+        } else if ((index=instructions.indexOf(text[j])) >= 0) {
+            // we've completed the instruction using a single instruction from the branches.
+            if (instructions.length > 1) {
+                console.error("didn't expect a dictionary with more than one instruction.  use, e.g., 'A'aa, not 'B'aba");
+                console.error("ultimately, however, you're the boss, so we'll go with it...");
+            }
+            // this is creating a dictionary
+            var obj = make_dictionary_function(context, instructions.length, index);
+            obj.final_j = j;
+            return obj;
+        } else {
+            var obj = make_function_with_instructions(context, text, j, instructions);
+            if (obj.error !== undefined) {
+                error("problem making function");
+                break;
+            }
+            return obj;
+        }
+    }
+    return { final_j: text.length, fn: function (stmts, stck) {}, error: "can't complete function definition" };
+}
+
 function next_instruction(context, text, j) {
+    var original_context = context;
     while (j < text.length) {
-        var back_slashed = false;
         switch (text[j]) {
             case '0':
             case '1':
@@ -123,16 +218,13 @@ function next_instruction(context, text, j) {
                 }
                 obj.internal_fn = obj.fn;
                 obj.fn = function (stmts, stck) {
-                    if (allocate(stck))
-                        return 1;
+                    allocate(stck);
                     var new_stack = { array: [], index: -1 };
                     if (obj.internal_fn(stmts, new_stack))
                         return error("could not build stack inside {}");
                     stck.array[stck.index] = new_stack;
                     return 0;
                 };
-                j = obj.final_j;
-                delete obj.final_j;
                 return obj;
             case "'":
             case '"':
@@ -175,18 +267,35 @@ function next_instruction(context, text, j) {
                 obj.final_j = j;
                 return obj;
             break;
-            case '\\':
-                do {
-                    context = context['\\'];
-                    ++j;
-                    if (j >= text.length) {
-                        error("can't complete backslashed function");
-                        return { final_j: text.length, fn: function (stmts, stck) {}, error: "can't complete backslash" };
+            case 'a':
+            case 'b':
+            case 'c':
+                // check if these are defined (if we're in a function definition)
+                // or if we need to define a function:
+                if (context[text[j]] === undefined) {
+                    while (true) {
+                        if (context === context['\\']) {
+                            return make_function(original_context, text, j);
+                        }
+                        context = context['\\'];
+                        if (context[text[j]] !== undefined)
+                            break;
                     }
-                } while (text[j] === '\\');
-                back_slashed = true;
+                }
             // NO BREAK, go into default:
             default:
+                var back_slashed = false;
+                if (text[j] === '\\') {
+                    do {
+                        context = context['\\'];
+                        ++j;
+                        if (j >= text.length) {
+                            error("can't complete backslashed function");
+                            return { final_j: text.length, fn: function (stmts, stck) {}, error: "can't complete backslash" };
+                        }
+                    } while (text[j] === '\\');
+                    back_slashed = true;
+                }
                 if (!back_slashed && text[j] === '-' && j+1 < text.length) {
                     var ascii = text.charCodeAt(j+1) - 48; // 48 === '0'
                     if (ascii >= 0 && ascii < 10) {
@@ -218,15 +327,15 @@ function next_instruction(context, text, j) {
                 // this creates an "instance" of the function, with a specific
                 // argument set.
                 var new_fn = { internal_fn: fn_header.fn, instructions: [] };
-                if (fn_header.subcontext)
+                if (fn_header.subcontext) {
                     context = fn_header.subcontext;
+                }
                 for (var i=0; i<fn_header.instructions; ++i) {
                     var j_start = j+1;
-                    var new_arg_fn = next_instruction(context, text, ++j)
+                    var new_arg_fn = next_instruction(original_context, text, ++j)
                     if (new_arg_fn.error !== undefined) {
                         error("could not get instructions for function "+fn_name_obj.name);
                         return { final_j: text.length, fn: function (stmts, stck) {}, error: "not enough instructions" };
-                    
                     }
                     j = new_arg_fn.final_j;
                     delete new_arg_fn.final_j;
@@ -256,6 +365,12 @@ function make_function_from_array(fn_array) {
                     return error("cannot finish function array");
                 }
                 if (stmts.interrupt) {
+                    if (stmts.interruptible === undefined) {
+                        if (stmts.interrupt > 0)
+                            return error("this is NOT a loop, cannot break out of it");
+                        else
+                            return error("this is NOT a loop, cannot jump back to beginning of it");
+                    }
                     if (stmts.interruptible.fn !== obj.fn)
                         break;
                     if (stmts.interrupt < 0) {

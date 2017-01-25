@@ -215,6 +215,19 @@ td {
 
     10l[?!k"hello `y`!"1-j] # counts down from 10 to 1, leaves 0 on the stack.
 
+</details><details><summary># Function definitions: abc z</summary>
+    # Functions are defined with up to three subsequent instructions.
+
+    abc # pop the TOS, use a string to define a function name.  abc are placeholders for instructions.
+        # the next instruction is interpreted as the function definition, which can use the placeholder instructions.
+    
+    # examples
+    
+    'w'abl[a!kbj]   # create a while loop with two instructions (`ab`);
+                    #   the first is executed to check whether to continue the loop, and if so, the second is executed
+    1 2 3 4 5wn["hi `y`"p]  # the first instruction is `n` (number of elements on stack), the second prints a string and pops the TOS
+
+
 </details></pre> 
 <div id="codeDiv"></div>
 <pre style="float:right;"><a href="https://patchsoul.github.io/FAKE">https://patchsoul.github.io/FAKE</a></pre>
