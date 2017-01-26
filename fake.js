@@ -263,12 +263,12 @@ add_function(root, 'k', 0, function (stmts, stck) {
                 return error("not enough elements to define matrix");
             if (typeof stck.array[stck.index] !== 'number' || typeof stck.array[stck.index-1] !== 'number')
                 return error("NOS and TOS aren't numbers to define rows and columns");
-            var rows = stck.array[stck.index-1]
+            var rows = stck.array[stck.index-1];
             if (rows <= 0)
                 return error("matrix error: rows <= 0");
+            var columns = stck.array[stck.index];
             if (columns <= 0)
                 return error("matrix error: columns <= 0");
-            var columns = stck.array[stck.index]; 
             pop(stck);
             pop(stck);
             var stmts = { interrupt: 0, interruptible: instructions[0], index: 0 };
