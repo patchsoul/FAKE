@@ -126,7 +126,7 @@ Things may change, but these are the current ideas/definitions of things:
 
     S   # super awesome one-instruction function to deal with a stack on the TOS.  (doesn't pop it, ever.  use p for that.)
     Sp  # stack pop.  pop last element of array-stack on TOS and push it to the current stack.  keep original TOS.
-    Sa  # stack append.  NOS is stack, TOS is what to append to that stack.  pop TOS.
+    SP  # stack append.  NOS is stack, TOS is what to append to that stack.  pop TOS.
     Si  # stack insert.  NOS is stack, TOS is what to prepend to that stack (insert at position 0).  pop TOS.
     Se  # stack execute.  execute the next instruction by descending into the stack on the TOS.  keep TOS.
         # you can push more values to the stack in this way:

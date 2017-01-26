@@ -309,6 +309,27 @@ td {
     1 5m[1,2,3,4,5] # create a row vector
     0 3dm[1+d,j]    # creates a matrix using a loop; loop terminates once last element is written.
 
+</details><details><summary># Array/Stack Definitions: {} SP Sp Se</summary>
+    # You can build a new stack using squirrely braces: {'instructions go here'}
+    # You can think of the new stack as a resizable array, with dynamically-typed elements inside.
+    # The new stack will appear on your usual stack, and you can manipulate it with the following functions.
+
+    S   # single-instruction dictionary for stack operations.
+    Sp  # pop from the stack on the TOS, push it to the main stack.
+    SP  # push the element on the TOS to the stack at the NOS.
+    Se  # execute the next instruction using the stack on the TOS as the stack to manipulate.
+        #   as a technical note, the \ context for Se is the root context, 
+        #   so that p inside the statement works to pop an element from the stack, rather than executing Sp
+    
+    # example (run commands sequentially)
+
+    {1 2 3 'hello'}     # pushes this new stack to the main stack.
+    Sp  # result is {1 2 e3} e'hello'   # pops 'hello' from new stack.
+    ' and goodbye!'+SP  # pushes 'hello and goodbye' onto the new stack.
+    Se["My message for you is `y`" # execute these instructions within/for the new stack.
+        l(n!k;j)   # loop through the elements below the string (using the parentheses ()), printing them
+    ]   # return control the main stack
+
 </details></pre> 
 <div id="codeDiv"></div>
 <pre style="float:right;"><a href="https://patchsoul.github.io/FAKE">https://patchsoul.github.io/FAKE</a></pre>

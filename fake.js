@@ -243,15 +243,14 @@ add_function(root, 'k', 0, function (stmts, stck) {
 });
 
 (function () {
-    var obj = add_function(root, 'e', 1, null);
-    obj.subcontext = {'\\': root, 'dictionary\\': 1};
-    obj.fn = function (instructions) {
+    var obj = add_function(root, 'e', 1, function (instructions) {
         return function (stmts, stck) {
             if (instructions[0].fn(stmts, stck))
                 return error("could not execute internal statement");
             return 0;
         };
-    };
+    });
+    obj.subcontext = {'\\': root, 'dictionary\\': 1};
 })();
 
 (function () {
@@ -332,3 +331,50 @@ add_function(root, ';', 0, function (stmts, stck) {
     pop(stck);
     return 0;
 });
+
+(function () {
+    var obj = add_function(root, 'S', 1, null);
+    obj.subcontext = {'\\': root, 'dictionary\\': 1};
+    obj.fn = function (instructions) {
+        return function (stmts, stck) {
+            if (instructions[0].fn(stmts, stck))
+                return error("could not execute internal statement");
+            return 0;
+        };
+    };
+    add_function(obj.subcontext, 'p', 0, function (stmts, stck) { // pop from TOS stack, push to stack
+        if (stck.index < 0)
+            return error("stack error: nothing on stack to pop out of");
+        var TOS = stck.array[stck.index];
+        if (typeof TOS !== 'object' || TOS.index === undefined)
+            return error("stack error: not a stack to pop out of");
+        if (TOS.index < 0)
+            return error("nothing on stack at TOS to pop out of");
+        allocate(stck);
+        stck.array[stck.index] = TOS.array[TOS.index];
+        pop(TOS);
+        return 0;
+    });
+    add_function(obj.subcontext, 'P', 0, function (stmts, stck) { // push TOS onto NOS stack
+        if (stck.index < 1)
+            return error("stack error: nothing on stack to push into");
+        var NOS = stck.array[stck.index-1];
+        if (typeof NOS !== 'object' || NOS.index === undefined)
+            return error("stack error: not a stack on NOS to push TOS into");
+        allocate(NOS);
+        NOS.array[NOS.index] = stck.array[stck.index];
+        pop(stck);
+        return 0;
+    });
+    var obj1 = add_function(obj.subcontext, 'e', 1, function (instructions) {
+        return function (stmts, stck) { // execute next instruction in TOS stack
+            if (stck.index < 0)
+                return error("stack error: nothing on stack to execute inside");
+            var TOS = stck.array[stck.index];
+            if (typeof TOS !== 'object' || TOS.index === undefined)
+                return error("stack error: not a stack to execute inside");
+            return instructions[0].fn(stmts, TOS);
+        };
+    });
+    obj1.subcontext = {'\\': root, 'dictionary\\': 1}; // note we're back to the root directory, this avoids weird things with Sp being used instead of p in the execution.
+})();
