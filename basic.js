@@ -699,7 +699,12 @@ var equal = [
     // matrix float
     function (stmts, stck) {
         // get matrix determinant, compare to float
-        return error("can't compare matrix at NOS by float at TOS, not yet...");
+        var result = determinant(stck.array[stck.index-1]) === stck.array[stck.index] ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result;
+        return 0;
     },
     // float string
     function (stmts, stck) { 
@@ -740,7 +745,13 @@ var equal = [
     },
     // float matrix
     function (stmts, stck) { 
-        return error("can't compare float at NOS by matrix at TOS.  not yet...");
+        // get matrix determinant, compare to float
+        var result = determinant(stck.array[stck.index]) === stck.array[stck.index-1] ? 1 : 0;
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stck.index] = result;
+        return 0;
     },
     // string matrix
     function (stmts, stck) { 
