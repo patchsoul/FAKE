@@ -125,6 +125,24 @@ function insertText(code, text) {
     selection.addRange(range);
 }
 
+function place_caret_at_end(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined" &&
+        typeof document.createRange != "undefined") {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (typeof document.body.createTextRange != "undefined") {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.collapse(false);
+        textRange.select();
+    }
+}
+
 function terminal_onkeydown(evt) {
     var code = document.activeElement;
     if (code.getAttribute("class") !== "code")
@@ -180,9 +198,11 @@ function terminal_onkeydown(evt) {
             return false;
         case 38: // up
             code.innerHTML = check_history_and_change(code.innerHTML, -1);
+            place_caret_at_end(code);
             return false;
         case 40: // down
             code.innerHTML = check_history_and_change(code.innerHTML, 1);
+            place_caret_at_end(code);
             return false;
     }
 }
