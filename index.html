@@ -192,6 +192,18 @@ td {
     3'what is the TOS?  it is `y`.'
                         # `y` executes and duplicates what is on the stack (3), which gets popped and written into the string.
 
+</details><details><summary># Context-dependent Printing: ,;</summary>
+    # The comma and semi-colon are useful for printing the TOS to output,
+    # though in some circumstances (e.g. check out Matrix Definition) they will do different things.
+
+    ,   # print TOS and pop it, but don't use a newline after printing.  (use a space.)
+    ;   # print TOS and pop it, appending a newline to the output.
+
+    # examples
+
+    'hello!';   # prints 'hello!' to output.  could also be done with "hello!" (see Print Strings).
+    1,2,3,4,5;  # prints "1 2 3 4 5" to output (newline after 5).
+
 </details><details><summary># Comparisons, Logic, and Conditional Branching: <=> ?&| !</summary>
     <   # push NOS < TOS (result is 0 or 1), after popping both.
     >   # push NOS > TOS (result is 0 or 1), after popping both.
@@ -273,6 +285,23 @@ td {
     ABE                         # prints iconic line.
 
     # It can get way more complicated than this, but these are the fundamentals.
+
+</details><details><summary># Matrix Definitions: m ,;</summary>
+    # You can build matrices using the `m` command.
+    
+    m   # take two arguments from the stack to get matrix dimensions (NOS for rows, TOS for columns), popping them,
+        #   and execute next instruction to build the matrix.
+    ,   # in the instruction after `m`, this pushes the TOS to the matrix.
+    ;   # similarly, this pushes the TOS to the matrix, and fills the remainder of the row with zeroes.
+    
+    # examples
+
+    2 2 m[1,0,0,1]  # build 2x2 identity matrix.
+        # note that if the final instruction is to push a number to the stack, 
+        # it will be pushed to the matrix.  (i.e., the final 1 did not need a subsequent comma.)
+    2dm[1;0,1]      # equivalent; d duplicates the 2, so the matrix is 2x2.
+    1 5m[1,2,3,4,5] # create a row vector
+    0 3dm[1+d,j]    # creates a matrix using a loop; loop terminates once last element is written.
 
 </details></pre> 
 <div id="codeDiv"></div>

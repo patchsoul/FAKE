@@ -425,6 +425,16 @@ function compile_function(context, text, j, until) {
                 while (++j < text.length && text[j] !== '\n') {}
             break;
             case until:
+                if (context['dictionary\\'] === 'm') {
+                    // check if the last function was "push number", if so, push it to matrix.
+                    if (fn_array.length && fn_array[fn_array.length-1].value !== undefined) {
+                        if (context[','] === undefined) {
+                            error("that shouldn't happen; , is not defined");
+                            return { final_j: j, fn: function (stmts, stck) {}, error: "bad matrix pop" };
+                        }
+                        fn_array.push(context[',']);
+                    }
+                }
                 var obj = make_function_from_array(fn_array);
                 obj.final_j = j;
                 return obj;

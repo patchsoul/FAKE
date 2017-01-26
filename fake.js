@@ -2,13 +2,21 @@ var root = {'dictionary\\': 1}; // root context/object/scope.
 root['\\'] = root; // pointer to itself
 var stack = {index: -1, array: []};
 var statements = {};
+var yet_to_print = [];
 
 function reset_statements() {
     statements.interrupt = 0;
-    statements.io_context = "none";
+}
+
+function printing(msg) {
+    yet_to_print.push(msg);
 }
 
 function print(msg) {
+    if (yet_to_print.length) {
+        msg = yet_to_print.join(" ") + " "+msg;
+        yet_to_print.length = 0;
+    }
     console.log(msg);
     addResponseLine(msg, "print");
     return 0;
@@ -210,9 +218,8 @@ add_function(root, '=', 0, function (stmts, stck) {
 
 add_function(root, 'l', 1, function (instructions) {
     return function (stmts, stck) {
-        var new_stmts = {interrupt: 0, io_context: stmts.io_context,
-            interruptible: instructions[0]};
-        instructions[0].fn(new_stmts, stck);
+        var new_stmts = {interrupt: 0, interruptible: instructions[0]};
+        return instructions[0].fn(new_stmts, stck);
     };
 });
 
@@ -237,3 +244,82 @@ add_function(root, 'k', 0, function (stmts, stck) {
         };
     };
 })();
+
+(function () {
+    var obj = add_function(root, 'm', 1, null);
+    obj.subcontext = {'\\': root, 'dictionary\\': 'm'};
+    obj.fn = function (instructions) {
+        return function (stmts0, stck) {
+            if (stck.index < 1)
+                return error("not enough elements to define matrix");
+            if (typeof stck.array[stck.index] !== 'number' || typeof stck.array[stck.index-1] !== 'number')
+                return error("NOS and TOS aren't numbers to define rows and columns");
+            var rows = stck.array[stck.index-1]
+            if (rows <= 0)
+                return error("matrix error: rows <= 0");
+            if (columns <= 0)
+                return error("matrix error: columns <= 0");
+            var columns = stck.array[stck.index]; 
+            pop(stck);
+            pop(stck);
+            var stmts = { interrupt: 0, interruptible: instructions[0], index: 0 };
+            // initialize the matrix:
+            stmts.matrix_index = 0;
+            stmts.matrix_size = rows*columns;
+            stmts.matrix = { rows: rows, columns: columns, array: Array(rows) };
+            for (var i=0; i<rows; ++i)
+                stmts.matrix.array[i] = Array(columns);
+            // run the internal function and add matrix to stack:
+            if (instructions[0].fn(stmts, stck))
+                return error("could not execute internal statement");
+            allocate(stck);
+            stck.array[stck.index] = stmts.matrix;
+            // fill remainder of matrix with zeroes:
+            while (stmts.matrix_index < stmts.matrix_size) {
+                stmts.matrix.array[Math.floor(stmts.matrix_index/columns)][stmts.matrix_index%columns] = 0;
+                ++stmts.matrix_index;
+            }
+            return 0;
+        };
+    };
+    add_function(obj.subcontext, ',', 0, function (stmts, stck) {
+        if (stck.index < 0)
+            return error("matrix error: nothing on stack to push");
+        if (typeof stck.array[stck.index] !== 'number')
+            return error("matrix error: could not push non-number to matrix");
+        stmts.matrix.array[Math.floor(stmts.matrix_index/stmts.matrix.columns)][stmts.matrix_index%stmts.matrix.columns] = stck.array[stck.index];
+        pop(stck);
+        if (++stmts.matrix_index >= stmts.matrix_size)
+            stmts.interrupt = 1;
+        return 0;
+    });
+    add_function(obj.subcontext, ';', 0, function (stmts, stck) {
+        if (stck.index < 0)
+            return error("matrix error: nothing on stack to push");
+        if (typeof stck.array[stck.index] !== 'number')
+            return error("matrix error: could not push non-number to matrix");
+        var row = Math.floor(stmts.matrix_index/stmts.matrix.columns);
+        var column = stmts.matrix_index%stmts.matrix.columns;
+        stmts.matrix.array[row][column++] = stck.array[stck.index];
+        pop(stck);
+        while (column < stmts.matrix.columns) {
+            stmts.matrix.array[row][column++] = 0;
+        }
+        stmts.matrix_index = (row+1)*stmts.matrix.columns;
+        if (stmts.matrix_index >= stmts.matrix_size)
+            stmts.interrupt = 1;
+        return 0;
+    });
+})();
+
+add_function(root, ',', 0, function (stmts, stck) {
+    printing(print_element(stck.array[stck.index]));
+    pop(stck);
+    return 0;
+});
+
+add_function(root, ';', 0, function (stmts, stck) {
+    print(print_element(stck.array[stck.index]));
+    pop(stck);
+    return 0;
+});

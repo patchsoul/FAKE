@@ -78,12 +78,18 @@ function print_stack(e) {
 }
 
 function print_matrix(e) {
-    var text = ["["];
-    for (var i=0; i<stck.array[stck.index].rows; ++i) {
-        text.push(stck.array[stck.index][i].join(", "));
-        text.push(";\r\n");
+    var text = ["[", e.rows];
+    if (e.rows === e.columns)
+        text.push("dm[");
+    else
+        text.push(" ", e.columns, "m[");
+    var i=0;
+    for (; i+1<e.rows; ++i) {
+        text.push(e.array[i].join(","));
+        text.push("; ");
     }
-    text.push("]"); 
+    text.push(e.array[i].join(","));
+    text.push(";]]");
     return text.join("");
 }
 
@@ -115,7 +121,7 @@ function two_arguments(stmts, stck, fs) {
             a = 1;
             break;
         case 'object':
-            if (a.index !== undefined)
+            if (stck.array[stck.index-1].index !== undefined)
                 a = 2;
             else
                 a = 3;
@@ -132,7 +138,7 @@ function two_arguments(stmts, stck, fs) {
             b = 1;
             break;
         case 'object':
-            if (b.index !== undefined)
+            if (stck.array[stck.index].index !== undefined)
                 b = 2;
             else
                 b = 3;

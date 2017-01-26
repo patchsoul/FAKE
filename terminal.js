@@ -93,6 +93,8 @@ function execute(codeblock) {
 
     codeblock.contentEditable = "false"; 
     codeblock.blur();
+    if (yet_to_print.length)
+        print("");
     addResponseLine(print_stack(stack), "result");
     addEmptyCodeLine();
 }

@@ -71,6 +71,25 @@ var divide = [
     }
 ];
 
+function matrix_multiply(new_matrix, A, B) {
+    if (A.columns != B.rows)
+        return error("column/row mismatch for multiplying matrices");
+    new_matrix.rows = A.rows;
+    new_matrix.array = Array(A.rows);
+    new_matrix.columns = B.columns;
+    for (var i=0; i<new_matrix.rows; ++i) {
+        new_matrix.array[i] = Array(new_matrix.columns);
+        for (var j=0; j<new_matrix.columns; ++j) {
+            var result = 0;
+            for (var k=0; k<A.columns; ++k) { // or B.rows
+                result += A.array[i][k] * B.array[k][j];
+            }
+            new_matrix.array[i][j] = result;
+        }
+    }
+    return 0;
+}
+
 var multiply = [
     // float float
     function (stmts, stck) { 
@@ -150,24 +169,8 @@ var multiply = [
     },
     // matrix matrix
     function (stmts, stck) {
-        var A = stck.array[stck.index-1], B = stck.array[stck.index];
-        if (A.columns != B.rows)
-            return error("column/row mismatch for multiplying matrices");
-        var new_matrix = {
-            rows: A.rows,
-            columns: B.columns,
-            array: Array(A.rows)
-        };
-        for (var i=0; i<new_matrix.rows; ++i) {
-            new_matrix.array[i] = Array(new_matrix.columns);
-            for (var j=0; j<new_matrix.columns; ++j) {
-                var result = 0;
-                for (var k=0; k<A.columns; ++k) { // or B.rows
-                    result += A.array[i][k] * B.array[k][j];
-                }
-                new_matrix.array[i][j] = result;
-            }
-        }
+        var new_matrix = {};
+        matrix_multiply(new_matrix, stck.array[stck.index-1], stck.array[stck.index]);
         pop(stck);
         pop(stck);
         allocate(stck);
@@ -749,6 +752,29 @@ var equal = [
     },
     // matrix matrix
     function (stmts, stck) {
-        return error("can't compare two matrices..., not yet...");
+        // compare item by item.
+        var A = stck.array[stck.index-1];
+        var B = stck.array[stck.index];
+        if (A.rows !== B.rows || A.columns != B.columns) {
+            pop(stck);
+            pop(stck);
+            allocate(stck);
+            stck.array[stack.index] = 0;
+        }
+        for (var i=0; i<A.rows; ++i)
+        for (var j=0; j<A.columns; ++j) {
+            if (A.array[i][j] !== B.array[i][j]) {
+                pop(stck);
+                pop(stck);
+                allocate(stck);
+                stck.array[stack.index] = 0;
+                return 0;
+            }
+        }
+        pop(stck);
+        pop(stck);
+        allocate(stck);
+        stck.array[stack.index] = 1;
+        return 0;
     }
 ];
