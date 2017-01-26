@@ -165,7 +165,6 @@ td {
         #   the new stack appears on the old stack as an array element.
     ()  # this statement lowers the stack index without popping the original TOS.  (NOS becomes TOS.)
         #   instructions inside the () will act on the original NOS as if it was the TOS.
-        #   take care to complete a pair of parentheses () before any loop breaks or jumps.
         #   while the stack index is lowered, 
         #       any elements which get pushed to the stack get inserted into the stack,
         #       and the original TOS gets moved up further.
