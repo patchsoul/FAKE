@@ -270,7 +270,7 @@ td {
     # See also "Dictionary definitions" for some advanced function definition uses.
 
 </details><details><summary># Dictionary definitions: aa bb cc</summary>
-    # Dictionaries are simply non-zero instruction functions.
+    # Dictionaries are simply functions with multiple instructions.
     # They have their own context for functions.
 
     # examples
@@ -279,7 +279,7 @@ td {
     A['Z'z["hello arizona!"]]   # create a subdictionary Z, defined only inside the A context.
     AZ                          # call Z from within an A context, prints "hello arizona!"
     'B'Aaa                      # create subdictionary B
-    'C'ABz["123"]               # create sub-subdictionary C
+    'C'ABz["123"]               # create sub-sub-function C
     ABC                         # prints 123
     AB['E'z"four score and seven years ago"]
     ABE                         # prints iconic line.
@@ -288,6 +288,7 @@ td {
 
 </details><details><summary># Matrix Definitions: m ,;</summary>
     # You can build matrices using the `m` command.
+    # `m` is a loop specification, so you can use the functions `j` and `k` to write the matrix.
     
     m   # take two arguments from the stack to get matrix dimensions (NOS for rows, TOS for columns), popping them,
         #   and execute next instruction to build the matrix.
