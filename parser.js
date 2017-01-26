@@ -84,6 +84,8 @@ function make_dictionary_function(context, length, index) {
             if (typeof stck.array[stck.index] !== 'string')
                 return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
             var obj = add_function(context, stck.array[stck.index], length, null);
+            if (obj.error !== undefined)
+                return error("can't make dictionary function");
             pop(stck);
             obj.subcontext = {'\\': context, 'dictionary\\': 1};
             obj.fn = function (instructions) {
@@ -113,6 +115,42 @@ function make_zero_instruction_function(context, text, j) {
         var obj1 = add_function(context, stck.array[stck.index], 0, function (stmts1, stck1) {
             return obj.internal_fn(stmts1, stck1);
         });
+        if (obj1.error !== undefined)
+            return error("can't make z-function");
+        pop(stck);
+        // nullify the function, it has defined something
+        return 0;
+    };
+    return obj;
+}
+
+function make_zero_instruction_variable_function(context, text, j) {
+    // text[j] should be 'Z'
+    var next_inst = next_instruction(context, text, j+1);
+    if (next_inst.error !== undefined)
+        return { final_j: text.length, fn: function (stmts, stck) {}, error: "unfinished z-function definition" };
+    while (context["dictionary\\"] === undefined) {
+        context = context['\\']
+        if (context === undefined) {
+            error("something horrible happened");
+            return { final_j: text.length, error: "cannot define an object in this context", fn: function (stmts, stck) { return 1; } };
+        }
+    }
+    var obj = {final_j: next_inst.final_j, internal_fn: next_inst.fn};
+    obj.fn = function (stmts, stck) {
+        if (stck.index < 0)
+            return error("nothing on stack, can't define a z-function");
+        if (typeof stck.array[stck.index] !== 'string')
+            return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
+        var name = stck.array[stck.index];
+        // overwrite the context
+        var obj1 = add_function(context, name, 0, function (stmts1, stck1) {
+            return context[name].internal_fn(stmts1, stck1);
+        }, 1); // send in "variable" at the end.
+        if (obj1.error !== undefined)
+            return error("can't make Z-function");
+        obj1.internal_fn = obj.internal_fn;
+        obj1.variable = true;
         pop(stck);
         // nullify the function, it has defined something
         return 0;
@@ -146,6 +184,8 @@ function make_function_with_instructions(context, text, j, instructions) {
         if (typeof stck.array[stck.index] !== 'string')
             return error("can't define function based on TOS of type "+(typeof stck.array[stck.index]));
         var obj1 = add_function(context, stck.array[stck.index], instructions.length, null);
+        if (obj1.error !== undefined)
+            return error("can't make multi-instruction function");
         pop(stck);
         obj1.subcontext = { '\\': context, 'dictionary\\': 1 };
         obj1.fn = function (instructions1) {
@@ -291,6 +331,8 @@ function next_instruction(context, text, j) {
             break;
             case 'z':
                 return make_zero_instruction_function(original_context, text, j);
+            case 'Z':
+                return make_zero_instruction_variable_function(original_context, text, j);
             case 'a':
             case 'b':
             case 'c':

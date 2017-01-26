@@ -28,15 +28,24 @@ function error(msg) {
     return 1;
 }
 
-function add_function(context, character, instructions, fn) {
+function add_function(context, character, instructions, fn, variable) {
     while (context["dictionary\\"] === undefined) {
         context = context['\\']
-        if (context === undefined)
-            return error("something horrible happened");
+        if (context === undefined) {
+            error("something horrible happened");
+            return { error: "bad", fn: function (stmts, stck) {return 1;} };
+        }
     }
     if (context[character] !== undefined) {
-        console.error("context: ", context);
-        return error("can't redefine function `"+character+"` in this context");
+        if (context[character].variable === undefined) {
+            console.error("context: ", context);
+            error("can't redefine function `"+character+"` in this context");
+            return { error: "can't redefine", fn: function (stmts, stck) {return 1;} };
+        } else if (variable !== undefined) { // we have a variable function already, send back the context for changing.
+            return context[character];
+        }
+        error("can't redefine a variable function as a constant function.  (use Z, not z.)");
+        return { error: "can't redefine as const", fn: function (stmts, stck) {return 1;} };
     }
     var obj = {
         name: character,

@@ -181,9 +181,8 @@ td {
     ""  # print string to output.
     ``  # execute the enclosed instruction.
         # this is useful for multi-character instructions, e.g. `function`.  (see "Function definitions".)
-        # `` can also be nested inside a '' or "" string, which executes the code and then pops the TOS
-        #   to write to that point in the string.  YAY for arbitrary code execution!
-        #   note that you can't do multiple instructions unless you enclose each in backticks ``.
+        # `` can also be nested inside a '' or "" string, which executes the instruction inside
+        #   and then pops the TOS to write to that point in the string.  YAY for arbitrary code execution!
 
     # examples
     
@@ -246,12 +245,14 @@ td {
 
     10l[?!k"hello `y`!"1-j] # counts down from 10 to 1, leaves 0 on the stack.
 
-</details><details><summary># Function definitions: abc z</summary>
+</details><details><summary># Function definitions: abc zZ</summary>
     # Functions are defined with up to three subsequent instructions.
 
     abc # pop the TOS, use a string to define a function name.  abc are placeholders for instructions.
         #   the next instruction is interpreted as the function definition, which can use the placeholder instructions.
     z   # define a zero-instruction function, popping the TOS for a function name.
+    Z   # define a variable zero-instruction function, popping TOS for a function name.
+        #   i.e., the function can be changed later to something else.
     
     # examples
     
@@ -266,6 +267,10 @@ td {
     9q          # yields e3
     'inv'z[-1^] # create inverse function
     9`inv`      # yields e0.1111...
+    'Q'Z0.25    # create variable zero-instruction function
+    Q           # yields e0.25
+    'Q'Z[4/]    # redefine Q to divide; requires something on TOS
+    5Q          # yields e1.25
 
     # See also "Dictionary definitions" for some advanced function definition uses.
 
