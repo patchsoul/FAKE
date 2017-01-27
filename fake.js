@@ -132,6 +132,10 @@ add_function(root, '/', 0, function (stmts, stck) {
     return two_arguments(stmts, stck, divide);
 });
 
+add_function(root, '%', 0, function (stmts, stck) {
+    return two_arguments(stmts, stck, modulus);
+});
+
 add_function(root, '*', 0, function (stmts, stck) {
     return two_arguments(stmts, stck, multiply);
 });
@@ -377,4 +381,58 @@ add_function(root, ';', 0, function (stmts, stck) {
         };
     });
     obj1.subcontext = {'\\': root, 'dictionary\\': 1}; // note we're back to the root directory, this avoids weird things with Sp being used instead of p in the execution.
+})();
+
+(function () {
+    var obj = add_function(root, 'R', 1, null);
+    obj.subcontext = {'\\': root, 'dictionary\\': 1};
+    obj.fn = function (instructions) {
+        return function (stmts, stck) {
+            if (instructions[0].fn(stmts, stck))
+                return error("could not execute internal statement");
+            return 0;
+        };
+    };
+    var ints = [];
+    add_function(obj.subcontext, 's', 0, function (stmts, stck) { // add random signed integer
+        allocate(stck);
+        if (!ints.length) {
+            ints = new Int32Array(16);
+            window.crypto.getRandomValues(ints);
+            ints = Array.from(ints);
+        }
+        stck.array[stck.index] = ints.pop();
+        return 0;
+    });
+    var uints = [];
+    add_function(obj.subcontext, 'u', 0, function (stmts, stck) { // add random unsigned integer
+        allocate(stck);
+        if (!uints.length) {
+            uints = new Uint32Array(16);
+            window.crypto.getRandomValues(uints);
+            uints = Array.from(uints);
+        }
+        stck.array[stck.index] = uints.pop();
+        return 0;
+    });
+    add_function(obj.subcontext, 'r', 0, function (stmts, stck) { // add random unsigned real
+        allocate(stck);
+        if (!uints.length) {
+            uints = new Uint32Array(16);
+            window.crypto.getRandomValues(uints);
+            uints = Array.from(uints);
+        }
+        stck.array[stck.index] = uints.pop()/(4294967296);
+        return 0;
+    });
+    add_function(obj.subcontext, 'R', 0, function (stmts, stck) { // add random signed real
+        allocate(stck);
+        if (!ints.length) {
+            ints = new Int32Array(16);
+            window.crypto.getRandomValues(ints);
+            ints = Array.from(ints);
+        }
+        stck.array[stck.index] = ints.pop()/(2147483648);
+        return 0;
+    });
 })();

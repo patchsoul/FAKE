@@ -123,8 +123,9 @@ td {
     0.5     # push a number to the stack.  a number begins with 0-9, so start with 0. to do fractions.
     -5.3    # push a negative number to the stack, i.e. - is unary minus if 0-9 follows.
     +-*/    # standard mathematical operators, postfix notation, operating on numbers already on the stack.
-    ^       # power, takes NOS as base and TOS as exponent.
-    _       # natural log, determines ln of TOS.
+    %       # find remainder of division operation.  (can be negative if dividee or divider is negative.)
+    ^       # power, takes next-on-stack as base and top-of-stack as exponent.
+    _       # natural log, determines ln of top-of-stack.
             #   to take an arbitrary log, base B, of some number N:
             #       N_B_/   # infix: log_B(N) = log(N)/log(B)
 
@@ -329,6 +330,21 @@ td {
     Se["My message for you is `y`" # execute these instructions within/for the new stack.
         l(n!k;j)   # loop through the elements below the string (using the parentheses ()), printing them
     ]   # return control the main stack
+
+</details><details><summary># Random Number Definitions: Ru Rs Rr RR</summary>
+    Ru  # random unsigned 32-bit integer, from 0 to 4294967295 (inclusive).
+    Rs  # random signed 32-bit integer, from -2147483648 to 2147483647 (inclusive).
+    Rr  # random real, in range [0, 1)
+    RR  # random signed real, in range [-1, 1)
+
+    # implementation wise, random reals are just random unsigned values divided by 1<<32 (4294967296)
+    # or signed values divided by 1<<31 (2147483648)
+
+    # to get a number in some range, use % on a random unsigned value.
+
+    # examples
+
+    Ru16%   # random value from 0 to 15, inclusive.
 
 </details></pre> 
 <div id="codeDiv"></div>

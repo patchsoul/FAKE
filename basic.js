@@ -71,6 +71,79 @@ var divide = [
     }
 ];
 
+var modulus = [
+    // float float
+    function (stmts, stck) { 
+        stck.array[stck.index-1] %= stck.array[stck.index];
+        pop(stck);
+        return 0;
+    },
+    // string float
+    function (stmts, stck) { 
+        return error("can't remainder string at NOS by float at TOS.  what would that mean?");
+    },
+    // stack float
+    function (stmts, stck) { 
+        return error("can't remainder stack at NOS by float at TOS, it's isolated...");
+    },
+    // matrix float
+    function (stmts, stck) {
+        for (var i=0; i<stck.array[stck.index-1].rows; ++i)
+        for (var j=0; j<stck.array[stck.index-1].columns; ++j)
+            stck.array[stck.index-1].array[i][j] %= stck.array[stck.index];
+        pop(stck);
+        return 0;
+    },
+    // float string
+    function (stmts, stck) { 
+        return error("can't remainder float at NOS by string at TOS.  what would that mean?");
+    },
+    // string string
+    function (stmts, stck) { 
+        return error("can't remainder two strings.  what would that mean?");
+    },
+    // stack string
+    function (stmts, stck) { 
+        return error("can't remainder stack at NOS by string at TOS, it's isolated...");
+    },
+    // matrix string
+    function (stmts, stck) {
+        return error("can't remainder matrix at NOS by string at TOS.  what would that mean?");
+    },
+    // float stack
+    function (stmts, stck) { 
+        return error("can't remainder float at NOS by stack at TOS.  what would that mean?");
+    },
+    // string stack
+    function (stmts, stck) { 
+        return error("can't remainder string at NOS by stack at TOS.  what would that mean?");
+    },
+    // stack stack
+    function (stmts, stck) { 
+        return error("can't remainder two stacks.  what would that mean?");
+    },
+    // matrix stack
+    function (stmts, stck) {
+        return error("can't remainder matrix at NOS by stack at TOS.  what would that mean?");
+    },
+    // float matrix
+    function (stmts, stck) { 
+        return error("can't remainder float at NOS by matrix at TOS.  don't have javascript implementation for matrix inverse.");
+    },
+    // string matrix
+    function (stmts, stck) { 
+        return error("can't remainder string at NOS by matrix at TOS.  what would that mean?");
+    },
+    // stack matrix
+    function (stmts, stck) { 
+        return error("can't remainder stack at NOS by matrix at TOS.  stack is isolated...");
+    },
+    // matrix matrix
+    function (stmts, stck) {
+        return error("can't remainder two matrices.  don't have javascript implementation for matrix inverse.");
+    }
+];
+
 function matrix_multiply(new_matrix, A, B) {
     if (A.columns != B.rows)
         return error("column/row mismatch for multiplying matrices");
