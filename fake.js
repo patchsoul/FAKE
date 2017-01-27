@@ -436,3 +436,31 @@ add_function(root, ';', 0, function (stmts, stck) {
         return 0;
     });
 })();
+
+(function () {
+    var obj = add_function(root, 'x', 1, null);
+    obj.subcontext = {'\\': root, 'dictionary\\': 1};
+    obj.fn = function (instructions) {
+        return function (stmts, stck) {
+            var count = stck.array[stck.index];
+            if (typeof count !== 'number')
+                return error("cannot read TOS as number to execute number of times");
+            pop(stck);
+            if (count <= 0)
+                return 0;
+            var new_stmts = {interrupt: 0, interruptible: instructions[0], count: count};
+            while (true) {
+                if (instructions[0].fn(new_stmts, stck))
+                    return error("could not execute internal statement");
+                if (--new_stmts.count <= 0)
+                    break;
+            }
+            return 0;
+        };
+    };
+    add_function(obj.subcontext, 'o', 0, function (stmts, stck) { // add random signed real
+        allocate(stck);
+        stck.array[stck.index] = stmts.count;
+        return 0;
+    });
+})();

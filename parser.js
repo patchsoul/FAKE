@@ -391,7 +391,10 @@ function next_instruction(context, text, j) {
                 // otherwise make a copy of the function 
                 // this creates an "instance" of the function, with a specific
                 // argument set.
+                var fn_header_subcontext_back = undefined;
                 if (fn_header.subcontext) {
+                    fn_header_subcontext_back = fn_header.subcontext['\\'];
+                    fn_header.subcontext['\\'] = original_context;
                     original_context = fn_header.subcontext;
                 }
                 var new_fn = { internal_fn: fn_header.fn, instructions: [] };
@@ -400,6 +403,8 @@ function next_instruction(context, text, j) {
                     var new_arg_fn = next_instruction(original_context, text, ++j)
                     if (new_arg_fn.error !== undefined) {
                         error("could not get instructions for function "+fn_name_obj.name);
+                        if (fn_header.subcontext)
+                            fn_header.subcontext['\\'] = fn_header_subcontext_back;
                         return { final_j: text.length, fn: function (stmts, stck) {}, error: "not enough instructions" };
                     }
                     j = new_arg_fn.final_j;
@@ -408,6 +413,8 @@ function next_instruction(context, text, j) {
                 }
                 new_fn.final_j = j;
                 new_fn.fn = new_fn.internal_fn(new_fn.instructions);
+                if (fn_header.subcontext)
+                    fn_header.subcontext['\\'] = fn_header_subcontext_back;
                 return new_fn;
             break;
         }
@@ -441,9 +448,15 @@ function make_function_from_array(fn_array) {
                     if (stmts.interrupt < 0) {
                         j = -1;
                         stmts.interrupt = 0;
+                        if (stmts.count !== undefined) {
+                            if (--stmts.count <= 0) break;
+                        }
                         continue;
                     }
                     stmts.interrupt = 0;
+                    if (stmts.count !== undefined) {
+                        stmts.count = 0;
+                    }
                     break;
                 }
             }

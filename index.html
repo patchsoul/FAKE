@@ -205,6 +205,9 @@ td {
     1,2,3,4,5;  # prints "1 2 3 4 5" to output (newline after 5).
 
 </details><details><summary># Comparisons, Logic, and Conditional Branching: <=> ?&| !</summary>
+    # NOTE.  be very careful, html may get stripped out of things entered into the text boxes.
+    # i.e. don't put < and ! right next to each other...
+
     <   # push NOS < TOS (result is 0 or 1), after popping both.
     >   # push NOS > TOS (result is 0 or 1), after popping both.
     =   # check if NOS is equal to TOS (result is 0 or 1), after popping both.
@@ -235,16 +238,23 @@ td {
             # end stack result is e100
     3 4< !["got not branch (>=)"]["got yes branch (<)"]
 
-</details><details><summary># Loop Operators: j k l</summary>
+</details><details><summary># Loop Operators: jkl x xo</summary>
     # loops use the letters jkl, which are right in a row, and thus easy to remember!
+    # you can also run a loop a specific number of times (like a for loop) using `x`.
 
     l   # loop statement; will loop over the next instruction if the jump operator is hit.
     j   # jump back to start of loop, or "continue", though this is required for a loop to repeat.
     k   # kill or quit loop, or "breaK", or kick out of loop prematurely.
 
+    x   # execute next instruction as many times as the TOS tells you to.
+    o   # inside an `x` statement, `o` corresponds to how many iterations left you have.
+        #   you can breaK outside of an `x` using `k`, or jump back to start of statement with `j`.
+        #   in the latter case, the iteration counter will decrease.
+
     # examples
 
     10l[?!k"hello `y`!"1-j] # counts down from 10 to 1, leaves 0 on the stack.
+    10x"hello `o`!" # easier way to do the above, except doesn't leave a 0 on the stack.
 
 </details><details><summary># Function definitions: abc zZ</summary>
     # Functions are defined with up to three subsequent instructions.
